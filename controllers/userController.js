@@ -25,18 +25,43 @@ module.exports = {
         //replace password with hash
         req.body.password = hash;
         //register user into db
-        userService.registerUser(req.body)
-            .then(user => res.status(200).json(user))
-            .catch(err => res.status(400).json(err))
+        userService
+          .registerUser(req.body)
+          .then(user => res.status(200).json(user))
+          .catch(err => res.status(400).json(err));
       });
     });
   },
-  loginUser: (req, res)=>{
-      const {errors, isValid }= validateLoginInput(req.body);
-      //check if valid
-      if(!isValid){
-          return res.status(400).json(errors);
-      }
-      userService.getUserByEmail(req.body.email).then().catch(err =)
+  loginUser: async (req, res) => {
+    const { errors, isValid } = validateLoginInput(req.body);
+    //check if valid
+    if (!isValid) {
+      return res.status(400).json(errors);
+    }
+    const user = await userService.getUserByEmail(req.body.email);
+    if (!user) {
+      errors.email = "No user found";
+      return res.status(404).json(errors);
+    }
+    //check password
+    let isMatch = await bcrypt.compare(password, user.password);
+    if (isMatch) {
+      //User mathed
+      //Create JWT payload
+      const payload = {
+        id: user.id,
+        email: user.email
+      };
+
+      //Sign Token
+      let token = await jwt.sign(payload, secretOrKey, { expiresIn: 3600 });
+      res.json({
+        success: true,
+        token: "Bearer " + token
+      });
+    } else {
+      errors.password = "Password incorrect";
+      return res.status(400).json(errors);
+    }
   }
 };

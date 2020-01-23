@@ -9,17 +9,31 @@ const UserSchema = new Schema({
   },
   password: {
     type: String,
-    required: true
+    required: true,
+    select: false
   },
-  role:{
-      type: String,
-      enum: ['Participant', 'Organizer', 'Volunteer', 'Director', 'Administrator'],
-      default: 'Participant'
-  },
-  status:{
+  role: {
     type: String,
-    enum: ['Incomplete', 'Registered', 'Waitlisted', 'Accepted', 'Confirmed', 'Denied'],
-    default: 'Incomplete'
+    enum: [
+      "Participant",
+      "Organizer",
+      "Volunteer",
+      "Director",
+      "Administrator"
+    ],
+    default: "Participant"
+  },
+  status: {
+    type: String,
+    enum: [
+      "Incomplete",
+      "Registered",
+      "Waitlisted",
+      "Accepted",
+      "Confirmed",
+      "Denied"
+    ],
+    default: "Incomplete"
   },
   date: {
     type: Date,

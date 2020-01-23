@@ -6,6 +6,8 @@ const { secretOrKey, mailchimpKey } = require("../../config/keys");
 const passport = require("passport");
 const request = require("request");
 
+const mailgun = require("../../config/mailgun");
+
 //Load user model
 const User = require("../../models/User");
 
@@ -181,5 +183,24 @@ router.post(
     });
   }
 );
+
+router.get("/mail", (req, res) => {
+  const tomail = "novacc1@montclair.edu";
+  const data = {
+    from: "test@hawkhack.io",
+    to: tomail,
+    subject: "Mailgun test from hawkhack.",
+    html: `this is a test of the mailgun api.`
+  };
+  // console.log(data);
+  // res.json(data);
+  mailgun.messages().send(data, (err, body) => {
+    if (err) {
+      res.status(500).json("error");
+      console.log("mailgun error: ", err);
+    }
+    res.status(200).json(`mail send to ${tomail}`);
+  });
+});
 
 module.exports = router;
